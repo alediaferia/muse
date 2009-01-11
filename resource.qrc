@@ -1,0 +1,14 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>images/media-eject.svg</file>
+    <file>images/media-playback-pause.svg</file>
+    <file>images/media-playback-start.svg</file>
+    <file>images/media-playback-stop.svg</file>
+    <file>images/media-seek-backward.svg</file>
+    <file>images/media-seek-forward.svg</file>
+    <file>images/media-skip-backward.svg</file>
+    <file>images/media-skip-forward.svg</file>
+    <file>images/museview.svg</file>
+    <file>images/mediacontrols.svg</file>
+</qresource>
+</RCC>
