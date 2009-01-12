@@ -16,59 +16,34 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  **************************************************************************/
-#ifndef MUSEMEDIAENGINE_H
-#define MUSEMEDIAENGINE_H
+#ifndef MUSEVIDEOWIDGET_H
+#define MUSEVIDEOWIDGET_H
 
-#include <QObject>
-#include <QList>
+#include <QGraphicsProxyWidget>
 
-class QUrl;
-class MuseVideoWidget;
+class QGraphicsSceneMouseEvent;
 
 namespace Phonon {
-    class MediaObject;
-    class MediaSource;
-    class AudioOutput;
     class VideoWidget;
 }
 
-class MuseMediaEngine : public QObject
+class MuseVideoWidget : public QGraphicsProxyWidget
 {
     Q_OBJECT
-public:
-    static MuseMediaEngine* instance();
-    ~MuseMediaEngine();
+    public:
+        MuseVideoWidget(Phonon::VideoWidget*, QGraphicsItem *parent = 0);
+        ~MuseVideoWidget();
 
-    void enqueueMedia(const QList<QUrl> &sources);
+        Phonon::VideoWidget* nativeWidget();
 
-    /**
-     * @returns the current Phonon::MediaObject in use to play media.
-     */
-    Phonon::MediaObject *currentMediaObject();
+    private:
+        class Private;
+        Private *d;
 
-private:
-    MuseMediaEngine(QObject *parent = 0);
-
-    static MuseMediaEngine *m_instance;
-    Phonon::MediaObject *m_mediaObject;
-    MuseVideoWidget *m_videoWidget;
-    Phonon::AudioOutput *m_audioOutput;
-
-protected slots:
-    void slotSourceChanged(const Phonon::MediaSource &);
-    void videoCheck(bool);
-
-signals:
-    /**
-     * This signal is emitted only when the current source includes video stream
-     * and a Phonon::VideoWidget is needed.
-     */
-    void videoSource(MuseVideoWidget*);
-
-    /**
-     * This signal is emitted whenever a new source is getting played.
-     */
-    void playingSource(const Phonon::MediaSource &);
+    protected:
+        void mousePressEvent(QGraphicsSceneMouseEvent *event);
+        void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+        void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
 };
 
 #endif

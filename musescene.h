@@ -21,11 +21,16 @@
 
 #include <QGraphicsScene>
 #include "musemediabutton.h"
+#include <phonon/phononnamespace.h>
+
 class MuseMediaControls;
+class MuseVideoWidget;
 class QGraphicsSceneDragDropEvent;
+class QGraphicsProxyWidget;
 
 namespace Phonon {
     class MediaObject;
+    class VideoWidget;
 }
 
 class MuseScene : public QGraphicsScene
@@ -39,7 +44,7 @@ private:
     MuseMediaControls *m_controls;
     Phonon::MediaObject *m_mediaObject;
     QGraphicsItem *m_currentMedia;
-    QGraphicsItem *m_background;
+    MuseVideoWidget *m_videoWidget;
 
 protected:
     void dropEvent(QGraphicsSceneDragDropEvent *event);
@@ -50,6 +55,8 @@ protected slots:
     void controlAnimation(int);
     void showCurrentMedia(const QString &);
     void handleMedia(MuseMediaButton::ButtonType);
+    void handleVideoSource(MuseVideoWidget*);
+    void slotStateChanged(Phonon::State, Phonon::State);
 
 public slots:
     void positionMediaControls();

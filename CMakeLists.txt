@@ -31,7 +31,7 @@ museview.cpp
 musemediabutton.cpp
 musescene.cpp
 musemediacontrols.cpp
-musebackground.cpp
+musevideowidget.cpp
 musemediaengine.cpp
 )
 

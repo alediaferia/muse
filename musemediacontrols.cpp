@@ -44,6 +44,7 @@ MuseMediaControls::MuseMediaControls(QGraphicsItem *parent) : QGraphicsWidget(pa
 
     setLayout(layout);
 //     this->layout()->activate();
+    setZValue(99999);
 }
 
 MuseMediaControls::~MuseMediaControls()

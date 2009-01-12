@@ -25,6 +25,10 @@ class QPainter;
 class QStyleOptionGraphicsItem;
 class QWidget;
 
+namespace Phonon {
+    class VideoWidget;
+}
+
 class MuseBackground : public QGraphicsWidget
 {
     Q_OBJECT
@@ -33,5 +37,6 @@ public:
     ~MuseBackground();
 
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    void setVideoWidget(Phonon::VideoWidget *);
 };
 #endif

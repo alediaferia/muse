@@ -99,7 +99,7 @@ void MuseMediaButton::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
     Q_UNUSED(event)
 
     m_enterAnimation->timeLine()->stop();
-    QTimeLine *timer = new QTimeLine(500);
+    QTimeLine *timer = new QTimeLine(200);
     timer->setFrameRange(0, 100);
 
     m_leaveAnimation = new QGraphicsItemAnimation(this);
@@ -118,7 +118,7 @@ void MuseMediaButton::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
     Q_UNUSED(event)
 
-    QTimeLine *timer = new QTimeLine(500);
+    QTimeLine *timer = new QTimeLine(200);
     timer->setFrameRange(0, 100);
 
     m_enterAnimation = new QGraphicsItemAnimation(this);

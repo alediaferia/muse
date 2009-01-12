@@ -19,32 +19,36 @@
 #include "musescene.h"
 #include "musemediabutton.h"
 #include "musemediacontrols.h"
-#include "musebackground.h"
 #include "musemediaengine.h"
+#include "musevideowidget.h"
 
 #include <QDebug>
 #include <QGraphicsItemAnimation>
 #include <QGraphicsSceneDragDropEvent>
 #include <QGraphicsSceneResizeEvent>
+#include <QGraphicsProxyWidget>
+// #include <QLinearGradient>
 #include <QTimeLine>
 #include <QMimeData>
 #include <QUrl>
 #include <phonon/mediaobject.h>
 #include <phonon/audiooutput.h>
 #include <phonon/mediasource.h>
+#include <phonon/videowidget.h>
 
-MuseScene::MuseScene(QObject *parent) : QGraphicsScene(parent), m_mediaObject(0), m_currentMedia(0)
+MuseScene::MuseScene(QObject *parent) : QGraphicsScene(parent), m_mediaObject(0), m_currentMedia(0), m_videoWidget(0)
 {
+//     setBackgroundBrush(Qt::lightGray);
+
     m_controls = new MuseMediaControls();
     addItem(m_controls);
 
     connect (m_controls, SIGNAL(buttonClicked(MuseMediaButton::ButtonType)), this, SLOT(handleMedia(MuseMediaButton::ButtonType)));
+    connect (MuseMediaEngine::instance(), SIGNAL(videoSource(MuseVideoWidget*)), this, SLOT(handleVideoSource(MuseVideoWidget*)));
 
     m_mediaObject = MuseMediaEngine::instance()->currentMediaObject();
+    connect (m_mediaObject, SIGNAL(stateChanged(Phonon::State, Phonon::State)), this, SLOT(slotStateChanged(Phonon::State, Phonon::State)));
 
-//     m_background = new MuseBackground;
-//     addItem(m_background);
-//     m_background->setZValue(-10);
 }
 
 MuseScene::~MuseScene()
@@ -63,7 +67,7 @@ void MuseScene::positionMediaControls()
     rect.translate(0, sceneRect().center().y() - (rect.height() / 2));
 
     m_controls->setPos(rect.topLeft());
-    qDebug() << m_controls->pos();
+//     qDebug() << m_controls->pos();
 }
 
 void MuseScene::animateControls()
@@ -71,7 +75,7 @@ void MuseScene::animateControls()
     qDebug() << "animating";
     QTimeLine *timer = new QTimeLine(2000);
     timer->setFrameRange(0, 100);
-    connect( timer, SIGNAL(frameChanged(int)), this, SLOT(controlAnimation(int)));
+//     connect( timer, SIGNAL(frameChanged(int)), this, SLOT(controlAnimation(int)));
 
     QGraphicsItemAnimation *animation = new QGraphicsItemAnimation(this);
     animation->setItem(m_controls);
@@ -134,6 +138,22 @@ void MuseScene::handleMedia(MuseMediaButton::ButtonType type)
             m_mediaObject->stop();
             break;
         default : ;
+    }
+}
+
+void MuseScene::handleVideoSource(MuseVideoWidget *videoWidget)
+{
+    qDebug() << "video source";
+    if (!m_videoWidget) {
+        addItem(videoWidget);
+        m_videoWidget = videoWidget;
+        qDebug() << m_videoWidget->isVisible() << "visible";
+    }
+}
+
+void MuseScene::slotStateChanged(Phonon::State newState, Phonon::State oldState)
+{
+    if (m_videoWidget && newState == Phonon::PlayingState) {
     }
 }
 

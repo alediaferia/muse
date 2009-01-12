@@ -17,6 +17,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  **************************************************************************/
 #include "musemediaengine.h"
+#include "musevideowidget.h"
 
 #include <phonon/mediasource.h>
 #include <phonon/mediaobject.h>
@@ -27,12 +28,15 @@ MuseMediaEngine::MuseMediaEngine(QObject *parent) : QObject(parent), m_mediaObje
 {
     connect (m_mediaObject, SIGNAL(currentSourceChanged(const Phonon::MediaSource &)),
              this, SLOT(slotSourceChanged(const Phonon::MediaSource &)));
+
+    connect (m_mediaObject, SIGNAL(hasVideoChanged(bool)), this, SLOT(videoCheck(bool)));
 }
 
 MuseMediaEngine::~MuseMediaEngine()
 {
     delete m_instance;
     delete m_videoWidget;
+    delete m_audioOutput;
 }
 
 MuseMediaEngine* MuseMediaEngine::m_instance = 0;
@@ -55,20 +59,6 @@ void MuseMediaEngine::slotSourceChanged(const Phonon::MediaSource &source)
         return;
     }
 
-    if (m_mediaObject->hasVideo()) {
-        if (!m_videoWidget) {
-            m_videoWidget = new Phonon::VideoWidget;
-            Phonon::createPath(m_mediaObject, m_videoWidget);
-        }
-        emit videoSource(m_videoWidget);
-
-        delete m_audioOutput;
-        m_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
-        Phonon::createPath(m_mediaObject, m_audioOutput);
-        emit playingSource(source);
-        return;
-    }
-
     delete m_audioOutput;
     m_audioOutput = new Phonon::AudioOutput(Phonon::MusicCategory, this);
     Phonon::createPath(m_mediaObject, m_audioOutput);
@@ -78,6 +68,26 @@ void MuseMediaEngine::slotSourceChanged(const Phonon::MediaSource &source)
 Phonon::MediaObject* MuseMediaEngine::currentMediaObject()
 {
     return m_mediaObject;
+}
+
+void MuseMediaEngine::videoCheck(bool hasVideo)
+{
+    qDebug() << "video check" << hasVideo;
+    if (!hasVideo) {
+        return;
+    }
+
+    if (!m_videoWidget) {
+	Phonon::VideoWidget *videoWidget = new Phonon::VideoWidget;
+	Phonon::createPath(m_mediaObject, videoWidget);
+        m_videoWidget = new MuseVideoWidget(videoWidget);
+    }
+
+    delete m_audioOutput;
+    m_audioOutput = new Phonon::AudioOutput(Phonon::VideoCategory, this);
+    Phonon::createPath(m_mediaObject, m_audioOutput);
+    qDebug() << "emitting video source";
+    emit videoSource(m_videoWidget);
 }
 
 #include "musemediaengine.moc"
