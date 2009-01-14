@@ -19,31 +19,43 @@
 #ifndef MUSEVIDEOWIDGET_H
 #define MUSEVIDEOWIDGET_H
 
-#include <QGraphicsProxyWidget>
+#include <QGraphicsWidget>
 
 class QGraphicsSceneMouseEvent;
+class QEvent;
 
 namespace Phonon {
     class VideoWidget;
 }
 
-class MuseVideoWidget : public QGraphicsProxyWidget
+class MuseVideoWidget : public QGraphicsWidget
 {
     Q_OBJECT
-    public:
-        MuseVideoWidget(Phonon::VideoWidget*, QGraphicsItem *parent = 0);
-        ~MuseVideoWidget();
+public:
+    MuseVideoWidget(Phonon::VideoWidget*, QGraphicsItem *parent = 0);
+    ~MuseVideoWidget();
 
-        Phonon::VideoWidget* nativeWidget();
+    Phonon::VideoWidget* nativeWidget();
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-    private:
-        class Private;
-        Private *d;
+private:
+    class Private;
+    Private *d;
 
-    protected:
-        void mousePressEvent(QGraphicsSceneMouseEvent *event);
-        void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-        void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void drawResizeControls(QPainter *painter, const QStyleOptionGraphicsItem *option) const;
+    QList<QRectF> calculateResizeRects(const QRectF &widgetRect) const;
+    void doResize(const float &xDelta, const float &yDelta);
+
+protected:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+
+    void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+    void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+
+protected slots:
+    void slotFading(int);
 };
 
 #endif
