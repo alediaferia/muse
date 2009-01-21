@@ -16,54 +16,54 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  **************************************************************************/
-#ifndef MUSESCENE_H
-#define MUSESCENE_H
+#include "museplaylistwidget.h"
+#include "museplaylistitem.h"
 
-#include <QGraphicsScene>
-#include "musemediabutton.h"
-#include <phonon/phononnamespace.h>
+#include <QPainter>
+#include <QStyleOptionGraphicsItem>
+#include <QRectF>
+#include <QUrl>
 
-class MuseMediaControls;
-class MusePlaylistWidget;
-class MuseVideoWidget;
-class QGraphicsSceneDragDropEvent;
-class QGraphicsProxyWidget;
+#define ITEM_HEIGHT 32.0
 
-namespace Phonon {
-    class MediaObject;
-    class VideoWidget;
+MusePlaylistWidget::MusePlaylistWidget(QGraphicsItem *parent) : QGraphicsWidget(parent)
+{
+    resize(100, 600);
 }
 
-class MuseScene : public QGraphicsScene
+MusePlaylistWidget::~MusePlaylistWidget()
+{}
+
+void MusePlaylistWidget::addItem(const QUrl &source)
 {
-    Q_OBJECT
-public:
-    MuseScene(QObject *parent);
-    ~MuseScene();
+    addItem(new MusePlaylistItem(source));
+}
 
-private:
-    MuseMediaControls *m_controls;
-    Phonon::MediaObject *m_mediaObject;
-    QGraphicsItem *m_currentMedia;
-    MuseVideoWidget *m_videoWidget;
-    MusePlaylistWidget *m_playlist;
+void MusePlaylistWidget::addItem(MusePlaylistItem *item)
+{
+    m_items << item;
+    update();
+}
 
-protected:
-    void dropEvent(QGraphicsSceneDragDropEvent *event);
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+void MusePlaylistWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+    Q_UNUSED(widget)
 
-protected slots:
-    void controlAnimation(int);
-    void showCurrentMedia(const QString &);
-    void handleMedia(MuseMediaButton::ButtonType);
-    void handleVideoSource(MuseVideoWidget*);
-    void slotStateChanged(Phonon::State, Phonon::State);
-    void adjustItems(const QRectF &);
+    painter->fillRect(rect(), Qt::red);
+    QRectF itemRect = contentsRect();
+    itemRect.setHeight(ITEM_HEIGHT);
 
-public slots:
-    void positionMediaControls();
-    void animateControls();
-};
+    QStyleOptionGraphicsItem opt(*option);
+    opt.rect = itemRect.toRect();
 
-#endif
+    painter->setClipRect(contentsRect());
+
+    foreach (MusePlaylistItem *item, m_items) {
+        item->paint(painter, opt);
+        itemRect.translate(0, ITEM_HEIGHT);
+        opt.rect = itemRect.toRect();
+    }
+}
+
+#include "museplaylistwidget.moc"
+

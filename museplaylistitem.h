@@ -16,54 +16,36 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  **************************************************************************/
-#ifndef MUSESCENE_H
-#define MUSESCENE_H
+#ifndef MUSEPLAYLISTITEM_H
+#define MUSEPLAYLISTITEM_H
 
-#include <QGraphicsScene>
-#include "musemediabutton.h"
-#include <phonon/phononnamespace.h>
+#include <QObject>
+#include <QUrl>
+#include <QRectF>
 
-class MuseMediaControls;
-class MusePlaylistWidget;
-class MuseVideoWidget;
-class QGraphicsSceneDragDropEvent;
-class QGraphicsProxyWidget;
+class QPainter;
+class QStyleOptionGraphicsItem;
+class QWidget;
 
-namespace Phonon {
-    class MediaObject;
-    class VideoWidget;
-}
-
-class MuseScene : public QGraphicsScene
+class MusePlaylistItem : public QObject
 {
     Q_OBJECT
 public:
-    MuseScene(QObject *parent);
-    ~MuseScene();
+    MusePlaylistItem(const QUrl &source);
+    ~MusePlaylistItem();
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem &option, QWidget *widget = 0);
+
+    void setRect(const QRectF rect);
+    QRectF rect() const;
+
+    QUrl source() const;
 
 private:
-    MuseMediaControls *m_controls;
-    Phonon::MediaObject *m_mediaObject;
-    QGraphicsItem *m_currentMedia;
-    MuseVideoWidget *m_videoWidget;
-    MusePlaylistWidget *m_playlist;
+    QUrl m_source;
+    QRectF m_rect;
 
-protected:
-    void dropEvent(QGraphicsSceneDragDropEvent *event);
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
-
-protected slots:
-    void controlAnimation(int);
-    void showCurrentMedia(const QString &);
-    void handleMedia(MuseMediaButton::ButtonType);
-    void handleVideoSource(MuseVideoWidget*);
-    void slotStateChanged(Phonon::State, Phonon::State);
-    void adjustItems(const QRectF &);
-
-public slots:
-    void positionMediaControls();
-    void animateControls();
+    QString sourcePrettyName() const;
 };
 
 #endif

@@ -33,6 +33,8 @@ musescene.cpp
 musemediacontrols.cpp
 musevideowidget.cpp
 musemediaengine.cpp
+museplaylistitem.cpp
+museplaylistwidget.cpp
 )
 
 set (muse_UIS

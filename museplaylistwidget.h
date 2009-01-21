@@ -16,54 +16,32 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  **************************************************************************/
-#ifndef MUSESCENE_H
-#define MUSESCENE_H
+#ifndef MUSEPLAYLISTWIDGET_H
+#define MUSEPLAYLISTWIDGET_H
 
-#include <QGraphicsScene>
-#include "musemediabutton.h"
-#include <phonon/phononnamespace.h>
+#include <QGraphicsWidget>
+#include <QList>
 
-class MuseMediaControls;
-class MusePlaylistWidget;
-class MuseVideoWidget;
-class QGraphicsSceneDragDropEvent;
-class QGraphicsProxyWidget;
+class QPainter;
+class QStyleOptionGraphicsItem;
+class QWidget;
+class MusePlaylistItem;
 
-namespace Phonon {
-    class MediaObject;
-    class VideoWidget;
-}
 
-class MuseScene : public QGraphicsScene
+class MusePlaylistWidget : public QGraphicsWidget
 {
     Q_OBJECT
 public:
-    MuseScene(QObject *parent);
-    ~MuseScene();
+    MusePlaylistWidget(QGraphicsItem *parent = 0);
+    ~MusePlaylistWidget();
+
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
+
+    void addItem(const QUrl &source);
+    void addItem(MusePlaylistItem *item);
 
 private:
-    MuseMediaControls *m_controls;
-    Phonon::MediaObject *m_mediaObject;
-    QGraphicsItem *m_currentMedia;
-    MuseVideoWidget *m_videoWidget;
-    MusePlaylistWidget *m_playlist;
-
-protected:
-    void dropEvent(QGraphicsSceneDragDropEvent *event);
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
-
-protected slots:
-    void controlAnimation(int);
-    void showCurrentMedia(const QString &);
-    void handleMedia(MuseMediaButton::ButtonType);
-    void handleVideoSource(MuseVideoWidget*);
-    void slotStateChanged(Phonon::State, Phonon::State);
-    void adjustItems(const QRectF &);
-
-public slots:
-    void positionMediaControls();
-    void animateControls();
+    QList<MusePlaylistItem*> m_items;
 };
 
 #endif

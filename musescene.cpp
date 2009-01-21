@@ -21,6 +21,7 @@
 #include "musemediacontrols.h"
 #include "musemediaengine.h"
 #include "musevideowidget.h"
+#include "museplaylistwidget.h"
 
 #include <QDebug>
 #include <QGraphicsItemAnimation>
@@ -36,12 +37,19 @@
 #include <phonon/mediasource.h>
 #include <phonon/videowidget.h>
 
+#define PLAYLIST_WIDTH 200.0
+
 MuseScene::MuseScene(QObject *parent) : QGraphicsScene(parent), m_mediaObject(0), m_currentMedia(0), m_videoWidget(0)
 {
 //     setBackgroundBrush(Qt::lightGray);
 
     m_controls = new MuseMediaControls();
     addItem(m_controls);
+
+    m_playlist = new MusePlaylistWidget;
+    addItem(m_playlist);
+
+    connect (this, SIGNAL(sceneRectChanged(const QRectF &)), this, SLOT(adjustItems(const QRectF &)));
 
     connect (m_controls, SIGNAL(buttonClicked(MuseMediaButton::ButtonType)), this, SLOT(handleMedia(MuseMediaButton::ButtonType)));
     connect (MuseMediaEngine::instance(), SIGNAL(videoSource(MuseVideoWidget*)), this, SLOT(handleVideoSource(MuseVideoWidget*)));
@@ -54,6 +62,7 @@ MuseScene::MuseScene(QObject *parent) : QGraphicsScene(parent), m_mediaObject(0)
 MuseScene::~MuseScene()
 {
     delete m_controls;
+    delete m_playlist;
 //     delete m_background;
 }
 
@@ -104,6 +113,10 @@ void MuseScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
     // TODO: use MuseMediaEngine
     MuseMediaEngine::instance()->enqueueMedia(droppedUrls);
+
+    foreach (const QUrl &url, droppedUrls) {
+        m_playlist->addItem(url);
+    }
 }
 
 void MuseScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
@@ -155,6 +168,12 @@ void MuseScene::slotStateChanged(Phonon::State newState, Phonon::State oldState)
 {
     if (m_videoWidget && newState == Phonon::PlayingState) {
     }
+}
+
+void MuseScene::adjustItems(const QRectF &rect)
+{
+    m_playlist->setPos(rect.topLeft());
+    m_playlist->resize(PLAYLIST_WIDTH, rect.height());
 }
 
 #include "musescene.moc"

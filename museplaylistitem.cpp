@@ -16,54 +16,59 @@
  *   Free Software Foundation, Inc.,                                       *
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA .        *
  **************************************************************************/
-#ifndef MUSESCENE_H
-#define MUSESCENE_H
+#include "museplaylistitem.h"
 
-#include <QGraphicsScene>
-#include "musemediabutton.h"
-#include <phonon/phononnamespace.h>
+#include <QPainter>
+#include <QStyleOptionGraphicsItem>
+#include <QFileInfo>
 
-class MuseMediaControls;
-class MusePlaylistWidget;
-class MuseVideoWidget;
-class QGraphicsSceneDragDropEvent;
-class QGraphicsProxyWidget;
+MusePlaylistItem::MusePlaylistItem(const QUrl &source) : m_source(source), m_rect(QRectF())
+{}
 
-namespace Phonon {
-    class MediaObject;
-    class VideoWidget;
+MusePlaylistItem::~MusePlaylistItem()
+{}
+
+void MusePlaylistItem::setRect(const QRectF rect)
+{
+    m_rect = rect;
 }
 
-class MuseScene : public QGraphicsScene
+QRectF MusePlaylistItem::rect() const
 {
-    Q_OBJECT
-public:
-    MuseScene(QObject *parent);
-    ~MuseScene();
+    return m_rect;
+}
 
-private:
-    MuseMediaControls *m_controls;
-    Phonon::MediaObject *m_mediaObject;
-    QGraphicsItem *m_currentMedia;
-    MuseVideoWidget *m_videoWidget;
-    MusePlaylistWidget *m_playlist;
+QUrl MusePlaylistItem::source() const
+{
+    return m_source;
+}
 
-protected:
-    void dropEvent(QGraphicsSceneDragDropEvent *event);
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+void MusePlaylistItem::paint(QPainter *painter, const QStyleOptionGraphicsItem &option, QWidget *widget)
+{
+    Q_UNUSED(widget)
 
-protected slots:
-    void controlAnimation(int);
-    void showCurrentMedia(const QString &);
-    void handleMedia(MuseMediaButton::ButtonType);
-    void handleVideoSource(MuseVideoWidget*);
-    void slotStateChanged(Phonon::State, Phonon::State);
-    void adjustItems(const QRectF &);
+    // contents rect initialization
+    QRectF contentsRect = option.rect;
+    if (!m_rect.isNull()) {
+        contentsRect = m_rect;
+    } else {
+        m_rect = contentsRect;
+    }
 
-public slots:
-    void positionMediaControls();
-    void animateControls();
-};
+    painter->fillRect(contentsRect, Qt::green); // just a debug color
+    painter->drawText(contentsRect, Qt::AlignVCenter | Qt::AlignLeft, sourcePrettyName());
 
-#endif
+}
+
+QString MusePlaylistItem::sourcePrettyName() const
+{
+    QFileInfo source(m_source.toLocalFile());
+    if (!source.exists()) {
+        return QString();
+    }
+
+    // TODO: chose and use a Tag engine for mp3s
+    return source.baseName();
+}
+
+#include "museplaylistitem.moc"
